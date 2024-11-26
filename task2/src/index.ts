@@ -1,6 +1,6 @@
 import "dotenv/config";
 import http from "http";
-import Router, { attachRoutes } from "./router";
+import Router, { attachRoutes } from "./router/index";
 import connectToDB from "./db";
 
 const router = Router();
