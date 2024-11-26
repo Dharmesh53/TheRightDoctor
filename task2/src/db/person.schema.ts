@@ -24,3 +24,10 @@ const personSchema = new mongoose.Schema({
 });
 
 export const Person = mongoose.model("Person", personSchema);
+
+export interface IPerson {
+  name: string;
+  age: number;
+  gender: "Male" | "Female";
+  mobile_number: string;
+}

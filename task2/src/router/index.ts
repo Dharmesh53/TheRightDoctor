@@ -5,7 +5,7 @@ import {
   updatePerson,
 } from "../controllers/person.controller";
 import { IncomingMessage, ServerResponse } from "http";
-import { sendResponse } from "../lib/utils";
+import { ServerRequest } from "../types";
 
 interface StackEntry {
   method: string;
@@ -19,7 +19,7 @@ interface RouterType {
   post: (path: string, handler: Function) => void;
   put: (path: string, handler: Function) => void;
   delete: (path: string, handler: Function) => void;
-  handle: (req: IncomingMessage, res: ServerResponse) => void;
+  handle: (req: ServerRequest, res: ServerResponse) => void;
 }
 
 export default function Router() {
@@ -46,7 +46,23 @@ export default function Router() {
       const { method, url } = req;
 
       this.stack.forEach((entry) => {
-        if (entry.method === method?.toLowerCase() && entry.path === url) {
+        const params: Record<string, string> = {};
+        const routeRegex = new RegExp(
+          `^${entry.path.replace(/:([^/]+)/g, (_, key) => {
+            params[key] = "";
+            return "([^/]+)";
+          })}$`
+        );
+
+        const match = url?.match(routeRegex);
+
+        if (entry.method === method?.toLowerCase() && match) {
+          const paramsKeys = Object.keys(params);
+          paramsKeys.forEach((key, index) => {
+            params[key] = match[index + 1];
+          });
+
+          req.params = params;
           return entry.handler(req, res);
         }
       });
@@ -57,8 +73,8 @@ export default function Router() {
 }
 
 export function attachRoutes(router: RouterType) {
-  router.get("/people", getPeople);
+  router.get("/person", getPeople);
   router.post("/person", createPerson);
-  router.put("/person", updatePerson);
-  router.delete("/person", deletePerson);
+  router.put("/person/:id", updatePerson);
+  router.delete("/person/:id", deletePerson);
 }

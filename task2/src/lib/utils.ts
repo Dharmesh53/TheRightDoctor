@@ -1,4 +1,5 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { IPerson } from "../db/person.schema";
 
 export function sendResponse(
   res: ServerResponse,
@@ -21,14 +22,21 @@ export function parseURL(url: string) {
 }
 
 export function getBody(req: IncomingMessage) {
-  let body: string;
-  let data: JSON;
+  return new Promise((resolve, reject) => {
+    let body: string = "";
+    let data;
 
-  req.on("data", (chunk) => {
-    body += chunk.toString();
-  });
+    req.on("data", (chunk) => {
+      body += chunk.toString();
+    });
 
-  req.on("end", () => {
-    data = JSON.parse(body);
+    req.on("end", () => {
+      try {
+        data = JSON.parse(body);
+        resolve(data);
+      } catch (error) {
+        reject(error);
+      }
+    });
   });
 }
