@@ -2,6 +2,7 @@
   "name": "task2",
   "version": "1.0.0",
   "main": "src/index.ts",
+  "url": "https://therightdoctor-backend.onrender.com",
   "type": "module",
   "scripts": {
     "start": "nodemon"
